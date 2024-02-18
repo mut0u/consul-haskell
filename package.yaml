@@ -29,7 +29,7 @@ library:
     - base >= 4.10 && < 5
     - base64-bytestring
     - bytestring
-    - connection
+##    - connection
     - either
     - exceptions
     - http-client

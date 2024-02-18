@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -33,8 +34,12 @@ import qualified Data.ByteString as B (concat)
 import qualified Data.ByteString.Lazy as BL (toStrict, fromStrict)
 import qualified Data.Text as T (concat, pack, unpack)
 import qualified Data.Vector as V (elem)
-import qualified Data.Aeson.KeyMap as M (toList)
-import qualified Data.Aeson.Key as M (toText)
+#if MIN_VERSION_aeson(2,0,0)
+import qualified Data.Aeson.Key as Aeson.Key
+import qualified Data.Aeson.KeyMap as Aeson.KeyMap
+#else
+import qualified Data.HashMap.Strict as HashMap
+#endif
 
 {- |
 
@@ -130,7 +135,12 @@ getServices _client@ConsulClient{..} tag = do
         bodyParts <- brConsume $ responseBody response
         return $ parseServices tag $ decode $ BL.fromStrict $ B.concat bodyParts
   where
-    parseServices t (Just (Object v)) = filterTags t $ map (\(k, va)-> (M.toText k, va)) $ M.toList v
+    parseServices t (Just (Object v)) = filterTags t $
+#if MIN_VERSION_aeson(2,0,0)
+                                          map (\(k, va)-> (Aeson.Key.toText k, va)) $ Aeson.KeyMap.toList v
+#else
+                                          HashMap.toList v
+#endif
     parseServices _   _               = []
     filterTags :: Maybe Text -> [(Text, Value)] -> [Text]
     filterTags (Just t)               = map fst . filter (\ (_, (Array v)) -> (String t) `V.elem` v)

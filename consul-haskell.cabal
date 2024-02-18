@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.2.
+-- This file has been generated from package.yaml by hpack version 0.36.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -59,7 +59,6 @@ library
     , base >=4.10 && <5
     , base64-bytestring
     , bytestring
-    , connection
     , either
     , exceptions
     , http-client
